@@ -30,7 +30,7 @@ class ProjectResource(ModelResource):
 
     """API resource for Project model."""
 
-    users = fields.ToManyField('readthedocs.api.base.UserResource', 'users')
+    users = fields.ToManyField('readthedocs.api.v1.base.UserResource', 'users')
 
     class Meta:
         include_absolute_url = True

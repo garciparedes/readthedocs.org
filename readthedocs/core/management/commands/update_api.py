@@ -12,7 +12,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from readthedocs.api.client import api
+from readthedocs.api.v1.client import api
 from readthedocs.projects import tasks
 from readthedocs.projects.models import APIProject
 

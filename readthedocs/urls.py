@@ -11,7 +11,7 @@ from django.contrib import admin
 from django.views.generic.base import RedirectView, TemplateView
 from tastypie.api import Api
 
-from readthedocs.api.base import (
+from readthedocs.api.v1.base import (
     FileResource,
     ProjectResource,
     UserResource,
@@ -73,14 +73,14 @@ project_urls = [
 
 api_urls = [
     url(r'^api/', include(v1_api.urls)),
-    url(r'^api/v2/', include('readthedocs.restapi.urls')),
+    url(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep the `doc_search` at root level, so the test does not fail for other API
     url(r'^api/v2/docsearch/$', PageSearchAPIView.as_view(), name='doc_search'),
     url(
         r'^api/auth/',
         include('rest_framework.urls', namespace='rest_framework')
     ),
-    url(r'^api/v3/', include('readthedocs.v3.urls')),
+    url(r'^api/v3/', include('readthedocs.api.v3.urls')),
 ]
 
 i18n_urls = [
