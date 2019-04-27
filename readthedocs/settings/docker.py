@@ -9,8 +9,8 @@ from .base import CommunityBaseSettings
 class CommunityDockerSettings(CommunityBaseSettings):
     """Settings for Docker deployment"""
 
-    PRODUCTION_DOMAIN = 'localhost:8000'
-    WEBSOCKET_HOST = 'localhost:8088'
+    PRODUCTION_DOMAIN = os.getenv('PRODUCTION_DOMAIN', 'localhost:8000')
+    WEBSOCKET_HOST = os.getenv('PRODUCTION_DOMAIN', 'localhost:8088')
 
     @property
     def DATABASES(self):  # noqa
@@ -18,8 +18,8 @@ class CommunityDockerSettings(CommunityBaseSettings):
             # 'default': {
             #     'ENGINE': 'django.db.backends.mysql',
             #     'NAME': 'db',
-            #     'USER': 'root',
-            #     'PASSWORD': 'docker_root',
+            #     'USER': 'dbuser',
+            #     'PASSWORD': 'dbpw',
             #     'HOST': 'mysql',
             #     'PORT': '3306',
             #     'TEST': {
@@ -40,8 +40,7 @@ class CommunityDockerSettings(CommunityBaseSettings):
 
     SLUMBER_USERNAME = 'docker'
     SLUMBER_PASSWORD = 'docker'  # noqa: ignore dodgy check
-    SLUMBER_API_HOST = 'http://127.0.0.1:8000'
-    PUBLIC_API_URL = 'http://127.0.0.1:8000'
+    SLUMBER_API_HOST = os.getenv('SLUMBER_API_HOST', "http://" + PRODUCTION_DOMAIN)
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -59,6 +58,8 @@ class CommunityDockerSettings(CommunityBaseSettings):
     # Disable auto syncing elasticsearch documents in development
     ELASTICSEARCH_DSL_AUTOSYNC = True
 
+    ALLOW_PRIVATE_REPOS = True
+
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
         logging = super().LOGGING
@@ -69,10 +70,3 @@ class CommunityDockerSettings(CommunityBaseSettings):
 
 
 CommunityDockerSettings.load_settings(__name__)
-
-if not os.environ.get('DJANGO_SETTINGS_SKIP_LOCAL', False):
-    try:
-        # pylint: disable=unused-wildcard-import
-        from .local_settings import *  # noqa
-    except ImportError:
-        pass
