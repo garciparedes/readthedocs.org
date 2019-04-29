@@ -9,27 +9,26 @@ from .base import CommunityBaseSettings
 class CommunityDockerSettings(CommunityBaseSettings):
     """Settings for Docker deployment"""
 
-    PRODUCTION_DOMAIN = os.getenv('PRODUCTION_DOMAIN', 'localhost:8000')
-    WEBSOCKET_HOST = os.getenv('PRODUCTION_DOMAIN', 'localhost:8088')
+    PRODUCTION_DOMAIN = os.getenv('PRODUCTION_DOMAIN')
 
     @property
     def DATABASES(self):  # noqa
         return {
-            # 'default': {
-            #     'ENGINE': 'django.db.backends.mysql',
-            #     'NAME': 'db',
-            #     'USER': 'dbuser',
-            #     'PASSWORD': 'dbpw',
-            #     'HOST': 'mysql',
-            #     'PORT': '3306',
-            #     'TEST': {
-            #         'NAME': 'db_test',
-            #     },
-            # }
             'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': '{}_db'.format(os.getenv('PROJECT_NAME')),
+                'USER': os.getenv('PROJECT_NAME'),
+                'PASSWORD': os.getenv('MYSQL_PASSWORD'),
+                'HOST': 'mysql',
+                'PORT': '3306',
+                'TEST': {
+                    'NAME': 'db_test',
+                },
             }
+            # 'default': {
+            #     'ENGINE': 'django.db.backends.sqlite3',
+            #     'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
+            # }
         }
 
     DONT_HIT_DB = False
@@ -40,7 +39,7 @@ class CommunityDockerSettings(CommunityBaseSettings):
 
     SLUMBER_USERNAME = 'docker'
     SLUMBER_PASSWORD = 'docker'  # noqa: ignore dodgy check
-    SLUMBER_API_HOST = os.getenv('SLUMBER_API_HOST', "http://" + PRODUCTION_DOMAIN)
+    SLUMBER_API_HOST = os.getenv('SLUMBER_API_HOST', PRODUCTION_DOMAIN)
 
     BROKER_URL = 'redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -56,7 +55,7 @@ class CommunityDockerSettings(CommunityBaseSettings):
     )
 
     # Disable auto syncing elasticsearch documents in development
-    ELASTICSEARCH_DSL_AUTOSYNC = True
+    ELASTICSEARCH_DSL_AUTOSYNC = False
 
     ALLOW_PRIVATE_REPOS = True
 
