@@ -9,7 +9,8 @@ from .base import CommunityBaseSettings
 class CommunityDockerSettings(CommunityBaseSettings):
     """Settings for Docker deployment"""
 
-    PRODUCTION_DOMAIN = os.getenv('PRODUCTION_DOMAIN')
+    PRODUCTION_DOMAIN = '{}:{}'.format(os.getenv('DOMAIN'), os.getenv('PORT'))
+    WEBSOCKET_HOST = '{}:8088'.format(os.getenv('DOMAIN'))
 
     @property
     def DATABASES(self):  # noqa
@@ -24,7 +25,7 @@ class CommunityDockerSettings(CommunityBaseSettings):
                 'TEST': {
                     'NAME': 'db_test',
                 },
-            }
+            },
             # 'default': {
             #     'ENGINE': 'django.db.backends.sqlite3',
             #     'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
@@ -37,12 +38,13 @@ class CommunityDockerSettings(CommunityBaseSettings):
     SESSION_COOKIE_DOMAIN = None
     CACHE_BACKEND = 'dummy://'
 
-    SLUMBER_USERNAME = 'docker'
-    SLUMBER_PASSWORD = 'docker'  # noqa: ignore dodgy check
-    SLUMBER_API_HOST = os.getenv('SLUMBER_API_HOST', PRODUCTION_DOMAIN)
+    SLUMBER_USERNAME = 'test'
+    SLUMBER_PASSWORD = 'test'  # noqa: ignore dodgy check
+    SLUMBER_API_HOST = 'http://127.0.0.1:8000'
+    PUBLIC_API_URL = 'http://127.0.0.1:8000'
 
-    BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    BROKER_URL = 'redis://{}:6379/0'.format(os.getenv('DOMAIN'))
+    CELERY_RESULT_BACKEND = 'redis://{}:6379/0'.format(os.getenv('DOMAIN'))
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
     CELERY_TASK_IGNORE_RESULT = False
@@ -50,14 +52,15 @@ class CommunityDockerSettings(CommunityBaseSettings):
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     FILE_SYNCER = 'readthedocs.builds.syncers.LocalSyncer'
 
+    # For testing locally. Put this in your /etc/hosts:
+    # 127.0.0.1 test
+    # and navigate to http://test:8000
     CORS_ORIGIN_WHITELIST = (
-        'localhost:8000',
+        'test:8000',
     )
 
     # Disable auto syncing elasticsearch documents in development
     ELASTICSEARCH_DSL_AUTOSYNC = False
-
-    ALLOW_PRIVATE_REPOS = True
 
     @property
     def LOGGING(self):  # noqa - avoid pep8 N802
@@ -66,6 +69,19 @@ class CommunityDockerSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False
         return logging
+
+    @property
+    def INSTALLED_APPS(self):
+        apps = super().INSTALLED_APPS
+        apps.append('debug_toolbar')
+        return apps
+
+    @property
+    def MIDDLEWARE(self):
+        middlewares = list(super().MIDDLEWARE)
+        middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
+
 
 
 CommunityDockerSettings.load_settings(__name__)
