@@ -9,7 +9,7 @@ from .base import CommunityBaseSettings
 class CommunityDockerSettings(CommunityBaseSettings):
     """Settings for Docker deployment"""
 
-    PRODUCTION_DOMAIN = '{}:{}'.format(os.getenv('DOMAIN'), os.getenv('PORT'))
+    PRODUCTION_DOMAIN = '{}:8000'.format(os.getenv('DOMAIN'))
     WEBSOCKET_HOST = '{}:8088'.format(os.getenv('DOMAIN'))
 
     @property
